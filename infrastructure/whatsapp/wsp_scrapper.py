@@ -1,6 +1,6 @@
 import re
 import time
-import random
+import random 
 from pathlib import Path
 import pandas as pd
 from playwright.sync_api import sync_playwright
