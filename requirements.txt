@@ -1,1 +1,1 @@
-pandas, playwright, openpyxl, langchain/openai, #añadir mas
+pathlib,pandas, playwright, openpyxl. #PyQt6 no definido aun
