@@ -441,7 +441,6 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
         if not self._page:
             return False
             
-        # Aplicamos la velocidad optimizada también al buscar por etiqueta label
         for label in ["Número de teléfono", "Teléfono"]:
             field = self._page.get_by_label(label, exact=True).first
             try:
@@ -462,7 +461,6 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
                         continue
                     field.click(timeout=2000)
                     field.fill("", timeout=2000)
-                    # Tipeo ultra veloz para el teléfono del contacto: 15-30ms por tecla
                     field.type(phone, delay=random.randint(15, 30), timeout=5000)
                     entered = re.sub(r"\D", "", field.input_value(timeout=1000))
                     if entered.endswith(re.sub(r"\D", "", phone)):
@@ -475,7 +473,6 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
         if self._type_in_labeled_field(["Nombre", "First name"], name):
             return True
             
-        # Modificación de velocidad directa sobre el input clásico
         for selector in WSP_SELECTORS["CONTACT_NAME_INPUTS"]:
             fields = self._page.locator(selector)
             for index in range(fields.count()):
@@ -485,7 +482,6 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
                         continue
                     field.click(timeout=2000)
                     field.fill("", timeout=2000)
-                    # Tipeo ultra veloz para el nombre del contacto: 15-30ms por tecla
                     field.type(name, delay=random.randint(15, 30), timeout=5000)
                     return True
                 except Exception:
