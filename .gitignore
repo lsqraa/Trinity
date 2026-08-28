@@ -1,2 +1,11 @@
 data/
 .env
+.codegraph
+.playwright-cli
+skills-lock.json
+docs/refactor_playwright_bot_plan.md
+docs/walkthrough-sqlite.md
+docs/sqlite_persistence_plan.md
+docs/message-personalization.md
+__pycache__/
+*.pyc

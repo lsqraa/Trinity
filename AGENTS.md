@@ -25,4 +25,15 @@ Por tres razones críticas:
 2. Persistencia de la Sesión: Al abrir el navegador localmente, Playwright guarda las "cookies" y el historial en la carpeta data/browser_session/. Esto permite que solo escanees el código QR la primera vez. El programa recordará tu sesión localmente todos los días.
 3. Privacidad de Datos Sensibles: Estás manejando información de 10,000 personas. Al ser On-Premise, esos datos nunca viajan ni se guardan en servidores externos de terceros; residen de forma segura en tu propio disco duro dentro de data/trinity.db.
 
-
+## Reglas de Estilo de Código
+1. Evita la sobre-documentación (Estilo IA):
+  1. No uses docstrings estilo científico (con líneas de guiones --------- o explicaciones redundantes atributo por atributo).
+  2. Si una clase, método o excepción tiene un nombre autoexplicativo (ej. ChatNotFoundError), no le agregues un docstring que repita lo que ya dice el nombre. Usa pass si la clase está vacía.
+  3. Elimina comentarios que expliquen la arquitectura ("capa de infraestructura", "implementaciones futuras", etc.). Esas notas no van en el código de producción.
+2. Consistencia en el manejo de errores y retornos:
+  1. Si una función o método utiliza excepciones para controlar los fallos (ej. raise SendFailedError), su tipo de retorno debe ser None, no bool. No mezcles retornar False con lanzar excepciones para el mismo flujo de error. Si la función termina sin lanzar errores, el sistema asume que fue exitosa.
+3. Diseño de Entidades de Dominio:
+  1. Los IDs autoincrementales asignados por la base de datos (SQLite) deben ser opcionales en la entidad de Python (id: int | None = None). Esto nos permite instanciar el objeto al leer el Excel antes de que exista en la base de datos.
+  2. Utiliza tipos de datos nativos avanzados como Enum para manejar estados fijos (ej. EstadoCliente) en lugar de pasar strings planos ('PENDIENTE', 'ENVIADO'). Esto evita errores de tipeo.
+4. Estilo General: Escribe código directo, compacto, fuertemente tipado (type hints) y que vaya al grano. Piensa como un desarrollador senior humano, no como un generador de texto técnico.
+5. No trabajar o hacer trabajo extra que no se te pidio, como test para los servicios, etc haz estrictamente lo que te pido yo y enfocate en lo que yo te diga que te enfoques.

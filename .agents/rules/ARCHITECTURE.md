@@ -37,14 +37,17 @@ trinity/
 └── AGENTS.md                # Prompts y roles de los agentes de IA
 ---
 
+
+
 ## 2. POR QUE SE DECIDIO USAR ESTRA ARQUITECTURA?
+
 Porque de este modo, la aplicación es 100% escalable porque las herramientas (Playwright, Pandas, PyQt6, etc.) se vuelven piezas de Lego intercambiables, blindando el cerebro de tu proyecto ante cualquier cambio tecnológico futuro.
 ---
 
 ## 3. COMO SE USARA?
 Paso 1 (La UI dispara la acción): Abres la interfaz gráfica en tu computadora y arrastras el Excel. La UI (app/ui/) no sabe leer Excel; solo toma la ruta del archivo y se la pasa al Servicio.
 
-Paso 2 (El Servicio coordina): El Servicio (app/services/scheduler.py) recibe la ruta. Llama al adaptador de Pandas para extraer los 10k clientes (aprocimadamente pueden ser mas) y le ordena al adaptador de SQLite: "Guárdalos a todos".
+Paso 2 (El Servicio coordina): El Servicio (app/services/scheduler.py) recibe la ruta. Llama al adaptador de Pandas para extraer los 10k clientes y validator.py se encargará de purificar y rescatar la información proveniente del Excel masivo de 10,000 filas antes de que toque la base de datos de SQLite. (aproximadamente, pueden ser mas) despues le ordena al adaptador de SQLite: "Guárdalos a todos".
 
 Paso 3 (El bucle diario seguro): Cada día, al presionar "Iniciar", el Servicio le pide a SQLite los 45 clientes de hoy. Para cada cliente, el Servicio llama a message_personalizations.py el cual simplemente tiene un diccionario de los tipos de mensajes y los tipos de imagenes que se pueden enviar esto es algo que se hace manualmente por la persona en el codigo (app/services/message_personalizations.py) para generar el mensaje personalizado.
 
@@ -61,3 +64,5 @@ Paso 3 (El bucle diario seguro): Cada día, al presionar "Iniciar", el Servicio 
      7 +  ### Regla de nombre para contacto en WhatsApp
      8 +  ```
      9 +  display_name = cliente.nombre si existe y no está vacío, si no → cliente.asesor_nombre
+
+
