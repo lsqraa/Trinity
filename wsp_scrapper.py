@@ -64,7 +64,7 @@ MESSAGES = {
 }
 
 IMAGES = {
-    1: r"C:\Users\brown\Downloads\salc.jpeg",
+    1:  ,
     2: r"C:\Users\brown\Downloads\salc.jpeg",
     3: r"C:\Users\brown\Downloads\salc.jpeg",
     4: r"C:\Users\brown\Downloads\salc.jpeg",

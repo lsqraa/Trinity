@@ -29,13 +29,9 @@ WSP_SELECTORS: dict[str, Any] = {
     "PAGINA_CARGADA_INDICADOR": '#side input, div[data-icon="chat"], [aria-label="Nuevo chat"]',
     "SEARCH_INPUT": '#side input, div[role="textbox"]',
     "NUEVO_CHAT_BTN": (
+        'button:has(title:has-text("wds-ic-new-chat-filled")), '
         'button:has(title:has-text("ic-add")), '
-        'button[data-tab="2"][aria-label*="chat" i], '
-        'button[data-tab="2"], '
-        'button[aria-label="Nuevo chat"], '
-        'button[aria-label="New chat"], '
-        'button[title="Nuevo chat"], '
-        'button[title="New chat"]'
+        'button[data-tab="2"]'
     ),
     "CONTACT_NAME_INPUTS": [
         'input[placeholder*="nombre" i]',
@@ -217,59 +213,64 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
 
     def _open_new_chat(self, cliente: Cliente) -> bool:
         if not self._page:
-            logger.error("No se puede abrir chat: página de Playwright no inicializada.")
             return False
 
         self._page.keyboard.press("Escape")
-        self._human_delay(0.2, 0.4)
+        self._human_delay(0.1, 0.2)
         self._page.keyboard.press("Escape")
-        self._human_delay(0.3, 0.5)
+        self._human_delay(0.15, 0.3)
 
         contact_name = self._get_display_name(cliente)
+        
         new_contact_option = self._page.locator('text="Nuevo contacto", text="New contact"').first
 
         try:
-            boton_mas = self._page.locator(WSP_SELECTORS["NUEVO_CHAT_BTN"]).first
-            boton_mas.wait_for(state="attached", timeout=5000)
-            boton_mas.click(force=True, timeout=5000)
-            self._human_delay(1.0, 1.5)
+            target_chat = self._page.locator('title:text-is("wds-ic-new-chat-filled") >> xpath=..').first
+            if target_chat.count() == 0:
+                target_chat = self._page.locator('title:text-is("ic-add") >> xpath=..').first
+
+            target_chat.wait_for(state="visible", timeout=2000)
+            target_chat.click(force=True, timeout=2000)
+            
+            self._human_delay(0.5, 0.7)
+            
         except Exception as e:
-            logger.error("No se pudo interactuar con el botón de nuevo chat: %s", e)
+            logger.error("No se pudo presionar el botón de Nuevo Chat con el mouse: %s", e)
             self._page.keyboard.press("Escape")
             return False
 
         interfaz_moderna = False
 
-        if new_contact_option.count() > 0 and new_contact_option.is_visible():
-            try:
-                new_contact_option.click(timeout=3000, force=True)
-                self._human_delay(0.5, 0.8)
+        try:
+            new_contact_option.wait_for(state="visible", timeout=1200)
+            if new_contact_option.is_visible():
+                new_contact_option.click(timeout=1500, force=True)
+                self._human_delay(0.3, 0.5)
                 interfaz_moderna = True
-            except Exception as e:
-                logger.warning("Fallo al seleccionar opción de nuevo contacto en menú: %s", e)
-                self._page.keyboard.press("Escape")
-                return False
-        else:
+        except Exception:
+            interfaz_moderna = False
+
+        if not interfaz_moderna:
             try:
                 icono_agregar_clasico = self._page.locator(
                     'button:has(title:has-text("person")), [aria-label*="contacto" i], [title*="contacto" i]'
                 ).first
-                if icono_agregar_clasico.count() > 0:
-                    icono_agregar_clasico.click(force=True, timeout=3000)
+                if icono_agregar_clasico.count() > 0 and icono_agregar_clasico.is_visible(timeout=1000):
+                    icono_agregar_clasico.click(force=True, timeout=1500)
                 else:
                     self._page.keyboard.press("Tab")
                     self._page.keyboard.press("Enter")
-                self._human_delay(0.6, 1.0)
+                self._human_delay(0.4, 0.7)
                 interfaz_moderna = True
             except Exception as e:
                 logger.warning("No se pudo desplegar formulario de contacto clásico: %s", e)
                 interfaz_moderna = False
 
-        self._human_delay(0.3, 0.6)
+        self._human_delay(0.2, 0.4)
         old_header = self._get_chat_header_text()
 
         if interfaz_moderna:
-            self._human_delay(0.8, 1.2)
+            self._human_delay(0.4, 0.6)
 
             if not self._fill_contact_name(contact_name):
                 logger.warning("No se pudo completar el campo de nombre para el contacto.")
@@ -285,7 +286,7 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
                 logger.info("El teléfono %s ya figura en la agenda de contactos.", cliente.telefono)
 
             try:
-                self._page.get_by_text(PHONE_ON_WHATSAPP).first.wait_for(state="visible", timeout=8000)
+                self._page.get_by_text(PHONE_ON_WHATSAPP).first.wait_for(state="visible", timeout=6000)
             except Exception as e:
                 logger.warning("Validación de número en WhatsApp fallida para %s: %s", cliente.telefono, e)
                 self._page.keyboard.press("Escape")
@@ -302,23 +303,23 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
                 return False
         else:
             caja_busqueda = self._page.locator(WSP_SELECTORS["SEARCH_INPUT"]).first
-            caja_busqueda.click(timeout=4000)
+            caja_busqueda.click(timeout=2000)
             caja_busqueda.fill("")
             for ch in cliente.telefono:
-                caja_busqueda.type(ch, delay=random.randint(60, 140))
+                caja_busqueda.type(ch, delay=random.randint(40, 90)) 
             self._page.keyboard.press("Enter")
-            self._human_delay(2.0, 4.0)
+            self._human_delay(1.5, 2.5)
 
-        deadline = time.time() + 8
+        deadline = time.time() + 6
         while time.time() < deadline:
             if self._get_chat_header_text() != old_header:
                 logger.info("Chat abierto exitosamente para %s (%s).", cliente.telefono, contact_name)
                 return True
-            time.sleep(0.1)
+            time.sleep(0.05) 
 
         logger.warning("Timeout al sincronizar apertura de chat para %s.", cliente.telefono)
         self._page.keyboard.press("Escape")
-        self._human_delay(0.4, 0.8)
+        self._human_delay(0.3, 0.6)
         return False
     
     def _send_message_with_image(self, text: str, image_path: str) -> bool:
@@ -439,8 +440,18 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
     def _fill_contact_phone(self, phone: str) -> bool:
         if not self._page:
             return False
-        if self._type_in_labeled_field(["Número de teléfono", "Teléfono"], phone):
-            return True
+            
+        # Aplicamos la velocidad optimizada también al buscar por etiqueta label
+        for label in ["Número de teléfono", "Teléfono"]:
+            field = self._page.get_by_label(label, exact=True).first
+            try:
+                if field.count() and field.is_visible():
+                    field.click(timeout=2000)
+                    field.fill("", timeout=2000)
+                    field.type(phone, delay=random.randint(15, 30), timeout=5000)
+                    return True
+            except Exception:
+                continue
 
         for selector in WSP_SELECTORS["CONTACT_PHONE_INPUTS"]:
             fields = self._page.locator(selector)
@@ -449,18 +460,37 @@ class PlaywrightWhatsAppBot(IWhatsAppSender):
                 try:
                     if not field.is_visible():
                         continue
-                    self._type_into_field(field, phone)
+                    field.click(timeout=2000)
+                    field.fill("", timeout=2000)
+                    # Tipeo ultra veloz para el teléfono del contacto: 15-30ms por tecla
+                    field.type(phone, delay=random.randint(15, 30), timeout=5000)
                     entered = re.sub(r"\D", "", field.input_value(timeout=1000))
                     if entered.endswith(re.sub(r"\D", "", phone)):
                         return True
                 except Exception:
                     continue
-        return False
+            return False
 
     def _fill_contact_name(self, name: str) -> bool:
         if self._type_in_labeled_field(["Nombre", "First name"], name):
             return True
-        return self._fill_first_visible(WSP_SELECTORS["CONTACT_NAME_INPUTS"], name)
+            
+        # Modificación de velocidad directa sobre el input clásico
+        for selector in WSP_SELECTORS["CONTACT_NAME_INPUTS"]:
+            fields = self._page.locator(selector)
+            for index in range(fields.count()):
+                field = fields.nth(index)
+                try:
+                    if not field.is_visible():
+                        continue
+                    field.click(timeout=2000)
+                    field.fill("", timeout=2000)
+                    # Tipeo ultra veloz para el nombre del contacto: 15-30ms por tecla
+                    field.type(name, delay=random.randint(15, 30), timeout=5000)
+                    return True
+                except Exception:
+                    continue
+        return False
 
     def _confirm_add_to_address_book(self) -> bool:
         if not self._page:
