@@ -16,3 +16,6 @@ __pycache__/
 bot_test.py
 .vscode
 .venv
+build
+dist
+trinity.spec
