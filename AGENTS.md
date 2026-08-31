@@ -37,3 +37,5 @@ Por tres razones críticas:
   2. Utiliza tipos de datos nativos avanzados como Enum para manejar estados fijos (ej. EstadoCliente) en lugar de pasar strings planos ('PENDIENTE', 'ENVIADO'). Esto evita errores de tipeo.
 4. Estilo General: Escribe código directo, compacto, fuertemente tipado (type hints) y que vaya al grano. Piensa como un desarrollador senior humano, no como un generador de texto técnico.
 5. No trabajar o hacer trabajo extra que no se te pidio, como test para los servicios, etc haz estrictamente lo que te pido yo y enfocate en lo que yo te diga que te enfoques.
+
+#ElMichi & lsqraa.
