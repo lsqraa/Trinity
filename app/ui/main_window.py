@@ -633,12 +633,17 @@ class MainWindow(QMainWindow):
         self.resize(1280, 800)
 
         # Set Window Icon
-        logo_path = Path("data/assets/trinity-logo.jpg")
+        from config.settings import settings
+        
+        logo_path = Path(settings.BASE_DIR) / "data" / "trinity-logo.ico"
         if not logo_path.is_file():
-            logo_path = Path(__file__).resolve().parent.parent / "data" / "assets" / "trinity-logo.jpg"
+            logo_path = Path(settings.BASE_DIR) / "data" / "assets" / "trinity-logo.ico"
+            
         if logo_path.is_file():
             pixmap = QPixmap(str(logo_path)).scaled(
-                256, 256, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                256, 256, 
+                Qt.AspectRatioMode.KeepAspectRatio, 
+                Qt.TransformationMode.SmoothTransformation
             )
             self.setWindowIcon(QIcon(pixmap))
 
