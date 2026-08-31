@@ -1,4 +1,6 @@
-data/
+data/trinity.db
+data/trinity.log
+data/browser_session/
 .env
 .codegraph
 .playwright-cli
