@@ -10,3 +10,7 @@ docs/message-personalization.md
 __pycache__/
 *.pyc
 .obsidian
+.atl
+bot_test.py
+.vscode
+.venv

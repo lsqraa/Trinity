@@ -17,7 +17,7 @@ def probar_bot_cuenta_business():
     # REEMPLAZA estos números con teléfonos reales para validar la continuidad
     clientes_prueba = [
         Cliente(
-            telefono="963074330",  # Contacto 1: Validará la primera inserción en la agenda Business
+            telefono="994841154",  # Contacto 1: Validará la primera inserción en la agenda Business
             nombre="Cliente Business Alfa",
             asesor_nombre="Carlos Ruiz",
             id=1
